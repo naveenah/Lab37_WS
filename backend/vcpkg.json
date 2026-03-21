@@ -1,0 +1,14 @@
+{
+    "name": "teleop-simulator",
+    "version-string": "1.0.0",
+    "description": "Robot Teleoperation Simulator Backend",
+    "dependencies": [
+        "entt",
+        "flatbuffers",
+        "nlohmann-json",
+        "spdlog",
+        "boost-lockfree",
+        "gtest",
+        "benchmark"
+    ]
+}

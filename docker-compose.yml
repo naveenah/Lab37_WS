@@ -1,0 +1,33 @@
+# Docker Compose V2 (version field is deprecated but included for compatibility)
+version: '3.8'
+
+services:
+  sim-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/var/log/teleop
+    environment:
+      - TELEOP_LOG_LEVEL=INFO
+      - TELEOP_TICK_RATE=60
+      - TELEOP_BROADCAST_RATE=30
+      - TELEOP_PORT=9001
+    restart: unless-stopped
+
+  web-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_WS_URL=ws://localhost:9001
+    depends_on:
+      - sim-backend
+
+volumes:
+  logs:

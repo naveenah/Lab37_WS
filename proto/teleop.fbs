@@ -1,0 +1,37 @@
+// teleop.fbs — shared schema (generates C++ and TypeScript)
+// Robot Teleoperation Simulator FlatBuffers IDL
+
+namespace Teleop;
+
+struct Vec2 {
+    x: float;
+    y: float;
+}
+
+enum EntityType : byte {
+    Robot = 0,
+    StaticObstacle = 1,
+    DynamicObstacle = 2
+}
+
+table Entity {
+    id: uint32;
+    entity_type: EntityType;
+    x: float;
+    y: float;
+    heading: float;
+    vertices: [Vec2];
+    color: uint32;
+}
+
+table WorldState {
+    sequence: uint32;
+    timestamp_ms: uint64;
+    tick_number: uint64;
+    entities: [Entity];
+    impact_count: uint32;
+    robot_speed: float;
+    robot_steering: float;
+}
+
+root_type WorldState;

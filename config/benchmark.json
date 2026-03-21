@@ -1,0 +1,89 @@
+{
+    "server": {
+        "port": 9001,
+        "tickRate": 60,
+        "broadcastRate": 30
+    },
+    "logging": {
+        "level": "WARN",
+        "logDir": "/var/log/teleop",
+        "maxFileSize": 104857600,
+        "maxFiles": 5
+    },
+    "world": {
+        "minX": -200.0,
+        "maxX": 200.0,
+        "minY": -200.0,
+        "maxY": 200.0
+    },
+    "physics": {
+        "spatialHashCellSize": 10.0
+    },
+    "rateLimiting": {
+        "maxTokens": 20,
+        "refillRate": 15
+    },
+    "scene": {
+        "robot": {
+            "position": { "x": 0.0, "y": 0.0 },
+            "heading": 0.0,
+            "vertices": [
+                { "x": -1.0, "y": -0.5 },
+                { "x": 1.0, "y": -0.5 },
+                { "x": 1.0, "y": 0.5 },
+                { "x": -1.0, "y": 0.5 }
+            ],
+            "color": "0x00FF00FF",
+            "wheelbase": 2.0,
+            "maxSpeed": 5.0,
+            "maxSteeringAngle": 0.6
+        },
+        "staticObstacles": [
+            {
+                "position": { "x": 190.0, "y": 0.0 },
+                "heading": 0.0,
+                "vertices": [
+                    { "x": -1.0, "y": -200.0 },
+                    { "x": 1.0, "y": -200.0 },
+                    { "x": 1.0, "y": 200.0 },
+                    { "x": -1.0, "y": 200.0 }
+                ],
+                "color": "0x888888FF"
+            },
+            {
+                "position": { "x": -190.0, "y": 0.0 },
+                "heading": 0.0,
+                "vertices": [
+                    { "x": -1.0, "y": -200.0 },
+                    { "x": 1.0, "y": -200.0 },
+                    { "x": 1.0, "y": 200.0 },
+                    { "x": -1.0, "y": 200.0 }
+                ],
+                "color": "0x888888FF"
+            },
+            {
+                "position": { "x": 0.0, "y": 190.0 },
+                "heading": 0.0,
+                "vertices": [
+                    { "x": -200.0, "y": -1.0 },
+                    { "x": 200.0, "y": -1.0 },
+                    { "x": 200.0, "y": 1.0 },
+                    { "x": -200.0, "y": 1.0 }
+                ],
+                "color": "0x888888FF"
+            },
+            {
+                "position": { "x": 0.0, "y": -190.0 },
+                "heading": 0.0,
+                "vertices": [
+                    { "x": -200.0, "y": -1.0 },
+                    { "x": 200.0, "y": -1.0 },
+                    { "x": 200.0, "y": 1.0 },
+                    { "x": -200.0, "y": 1.0 }
+                ],
+                "color": "0x888888FF"
+            }
+        ],
+        "dynamicObstacles": []
+    }
+}
