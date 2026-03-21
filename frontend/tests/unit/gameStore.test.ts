@@ -56,9 +56,9 @@ describe('gameStore', () => {
         expect(useGameStore.getState().latencyMs).toBe(42);
     });
 
-    it('updates fps', () => {
-        useGameStore.getState().setFps(60);
-        expect(useGameStore.getState().fps).toBe(60);
+    it('updates render fps', () => {
+        useGameStore.getState().setRenderFps(60);
+        expect(useGameStore.getState().renderFps).toBe(60);
     });
 
     it('updates last command', () => {

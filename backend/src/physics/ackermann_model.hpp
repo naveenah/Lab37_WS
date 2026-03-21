@@ -3,6 +3,7 @@
 #include "interfaces/i_robot_kinematics.hpp"
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 namespace teleop {
 

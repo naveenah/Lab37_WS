@@ -6,8 +6,9 @@ import { ControlPanel } from './components/ControlPanel';
 import { ConnectionManager } from './services/ConnectionManager';
 import { InputHandler } from './services/InputHandler';
 import { useGameStore } from './store/gameStore';
+import { logger } from './utils/logger';
 
-const WS_URL = `ws://${window.location.hostname}:9001`;
+const WS_URL = import.meta.env.VITE_WS_URL ?? `ws://${window.location.hostname}:9001`;
 const COMMAND_RATE_MS = 100; // 10 Hz
 
 const AppContent: React.FC = () => {
@@ -29,12 +30,10 @@ const AppContent: React.FC = () => {
         commandTimerRef.current = setInterval(() => {
             const cmd = input.getCurrentCommand();
             if (Math.abs(cmd.throttle) > 0.01 || Math.abs(cmd.steering) > 0.01) {
-                console.log('[CMD]', { throttle: cmd.throttle.toFixed(2), steering: cmd.steering.toFixed(2), seq: cmd.sequence });
+                logger.debug('[CMD]', { throttle: cmd.throttle.toFixed(2), steering: cmd.steering.toFixed(2), seq: cmd.sequence });
             }
             connection.sendCommand(cmd);
-            useGameStore.getState().setInputSource(
-                cmd.throttle !== 0 || cmd.steering !== 0 ? 'keyboard' : 'none',
-            );
+            useGameStore.getState().setInputSource(input.getActiveSource());
         }, COMMAND_RATE_MS);
 
         return () => {

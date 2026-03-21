@@ -32,7 +32,7 @@ export const SimulationCanvas: React.FC = () => {
         if (!ctx) return;
 
         perfMonitor.recordFrame();
-        useGameStore.getState().setFps(perfMonitor.getFps());
+        useGameStore.getState().setRenderFps(perfMonitor.getFps());
 
         // Resize canvas to fill container
         const dpr = window.devicePixelRatio || 1;

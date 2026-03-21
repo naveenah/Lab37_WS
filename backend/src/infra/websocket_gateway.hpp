@@ -15,6 +15,7 @@
 
 // Forward declarations for uWebSockets
 struct us_listen_socket_t;
+struct us_timer_t;
 
 namespace teleop {
 
@@ -43,11 +44,12 @@ private:
     ILogger& logger_;
     TokenBucket rateLimiter_;
 
-    uint32_t lastSequence_ = 0;
-    uint64_t lastTimestamp_ = 0;
+    int tickRate_;
+    int broadcastRate_;
 
     std::atomic<bool> running_{false};
     struct us_listen_socket_t* listenSocket_ = nullptr;
+    struct us_timer_t* broadcastTimer_ = nullptr;
 
     // Broadcast buffer
     // Broadcast buffer (written by sim thread, read by network thread timer)

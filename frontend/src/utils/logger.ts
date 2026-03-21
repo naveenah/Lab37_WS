@@ -23,6 +23,16 @@ export class Logger {
     constructor(level: LogLevel = LogLevel.INFO) {
         this.level = level;
         this.flushTimer = setInterval(() => this.flush(), 5000);
+
+        // Prevent the timer from keeping Node/vitest processes alive
+        if (typeof this.flushTimer === 'object' && this.flushTimer !== null && 'unref' in this.flushTimer) {
+            (this.flushTimer as { unref: () => void }).unref();
+        }
+
+        // Clean up on page unload in browser environments
+        if (typeof window !== 'undefined') {
+            window.addEventListener('beforeunload', () => this.destroy());
+        }
     }
 
     event(category: string, data: Record<string, unknown>): void {

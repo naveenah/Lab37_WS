@@ -21,7 +21,7 @@ export class ConnectionManager {
     }
 
     connect(): void {
-        if (this.ws?.readyState === WebSocket.OPEN) return;
+        if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) return;
 
         useGameStore.getState().setConnectionState('connecting');
         logger.info('Connecting to ' + this.url);

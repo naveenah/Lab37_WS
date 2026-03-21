@@ -41,16 +41,16 @@ describe('InputHandler', () => {
         expect(cmd.throttle).toBe(-1);
     });
 
-    it('A key produces negative steering', () => {
+    it('A key produces positive steering (left = counter-clockwise in Ackermann model)', () => {
         pressKey('KeyA');
         const cmd = handler.getCurrentCommand();
-        expect(cmd.steering).toBe(-1);
+        expect(cmd.steering).toBe(1);
     });
 
-    it('D key produces positive steering', () => {
+    it('D key produces negative steering (right = clockwise in Ackermann model)', () => {
         pressKey('KeyD');
         const cmd = handler.getCurrentCommand();
-        expect(cmd.steering).toBe(1);
+        expect(cmd.steering).toBe(-1);
     });
 
     it('arrow keys work as alternatives', () => {
@@ -59,7 +59,7 @@ describe('InputHandler', () => {
         releaseKey('ArrowUp');
 
         pressKey('ArrowLeft');
-        expect(handler.getCurrentCommand().steering).toBe(-1);
+        expect(handler.getCurrentCommand().steering).toBe(1);
     });
 
     it('space cancels throttle', () => {

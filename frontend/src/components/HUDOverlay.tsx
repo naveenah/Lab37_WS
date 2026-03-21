@@ -28,7 +28,7 @@ export const HUDOverlay: React.FC<HUDOverlayProps> = ({ onReset }) => {
     const connectionState = useGameStore((s) => s.connectionState);
     const impactCount = useGameStore((s) => s.impactCount);
     const latencyMs = useGameStore((s) => s.latencyMs);
-    const fps = useGameStore((s) => s.fps);
+    const fps = useGameStore((s) => s.renderFps);
 
     return (
         <div style={{

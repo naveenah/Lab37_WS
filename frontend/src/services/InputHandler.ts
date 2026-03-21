@@ -35,13 +35,40 @@ export class InputHandler {
         return this.mergeInputs(keyboard, gamepad);
     }
 
+    getActiveSource(): 'keyboard' | 'gamepad' | 'none' {
+        const gamepad = this.getGamepadInput();
+        if (gamepad && (Math.abs(gamepad.throttle) > 0 || Math.abs(gamepad.steering) > 0)) {
+            return 'gamepad';
+        }
+        if (this.isPressed(this.KEY_MAP.forward) || this.isPressed(this.KEY_MAP.backward) ||
+            this.isPressed(this.KEY_MAP.left) || this.isPressed(this.KEY_MAP.right)) {
+            return 'keyboard';
+        }
+        return 'none';
+    }
+
     resetSequence(): void {
         this.sequence = 0;
     }
 
     hasInput(): boolean {
-        const cmd = this.getCurrentCommand();
-        return Math.abs(cmd.throttle) > 0.01 || Math.abs(cmd.steering) > 0.01;
+        // Check input state directly to avoid incrementing the sequence counter
+        const hasKeyboard = this.isPressed(this.KEY_MAP.forward) ||
+            this.isPressed(this.KEY_MAP.backward) ||
+            this.isPressed(this.KEY_MAP.left) ||
+            this.isPressed(this.KEY_MAP.right);
+        if (hasKeyboard) return true;
+
+        if (this.gamepadIndex !== null) {
+            const gp = navigator.getGamepads()[this.gamepadIndex];
+            if (gp) {
+                const throttle = this.applyDeadzone(-(gp.axes[1] ?? 0));
+                const steering = this.applyDeadzone(-(gp.axes[0] ?? 0));
+                if (Math.abs(throttle) > 0.01 || Math.abs(steering) > 0.01) return true;
+            }
+        }
+
+        return false;
     }
 
     private getKeyboardInput(): RawInput {
@@ -50,6 +77,8 @@ export class InputHandler {
 
         if (this.isPressed(this.KEY_MAP.forward)) throttle += 1.0;
         if (this.isPressed(this.KEY_MAP.backward)) throttle -= 1.0;
+        // Positive steering = counter-clockwise in the Ackermann model (math convention).
+        // Left key maps to +1.0 so the robot visually turns left on screen.
         if (this.isPressed(this.KEY_MAP.left)) steering += 1.0;
         if (this.isPressed(this.KEY_MAP.right)) steering -= 1.0;
         if (this.isPressed(this.KEY_MAP.brake)) throttle = 0;

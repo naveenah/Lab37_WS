@@ -11,6 +11,7 @@
 #include "physics/ackermann_model.hpp"
 #include "engine/simulation_engine.hpp"
 #include <entt/entt.hpp>
+#include <cstdlib>
 #include <thread>
 #include <iostream>
 #include <string>

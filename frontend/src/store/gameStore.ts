@@ -14,7 +14,8 @@ export interface GameState {
     latencyMs: number;
 
     // Performance
-    fps: number;
+    renderFps: number;
+    streamFps: number;
     lastBroadcastTime: number;
 
     // Input state
@@ -26,7 +27,8 @@ export interface GameState {
     setImpactCount: (count: number) => void;
     setConnectionState: (state: ConnectionState) => void;
     setLatency: (ms: number) => void;
-    setFps: (fps: number) => void;
+    setRenderFps: (fps: number) => void;
+    setStreamFps: (fps: number) => void;
     setLastCommand: (cmd: CommandMessage) => void;
     setInputSource: (source: 'keyboard' | 'gamepad' | 'none') => void;
     recordBroadcast: () => void;
@@ -38,7 +40,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     impactCount: 0,
     connectionState: 'disconnected',
     latencyMs: 0,
-    fps: 0,
+    renderFps: 0,
+    streamFps: 0,
     lastBroadcastTime: 0,
     lastCommand: null,
     inputSource: 'none',
@@ -56,7 +59,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     setImpactCount: (count) => set({ impactCount: count }),
     setConnectionState: (state) => set({ connectionState: state }),
     setLatency: (ms) => set({ latencyMs: ms }),
-    setFps: (fps) => set({ fps }),
+    setRenderFps: (fps) => set({ renderFps: fps }),
+    setStreamFps: (fps) => set({ streamFps: fps }),
     setLastCommand: (cmd) => set({ lastCommand: cmd }),
     setInputSource: (source) => set({ inputSource: source }),
 
@@ -67,7 +71,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             const dt = now - prev;
             const fps = 1000 / dt;
             set({
-                fps: Math.round(fps * 0.1 + get().fps * 0.9),
+                streamFps: Math.round(fps * 0.1 + get().streamFps * 0.9),
                 lastBroadcastTime: now,
             });
         } else {

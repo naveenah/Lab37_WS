@@ -9,7 +9,8 @@ namespace teleop {
 using json = nlohmann::json;
 
 struct PerSocketData {
-    // Per-connection state can be added here
+    uint32_t lastSequence = 0;
+    uint64_t lastTimestamp = 0;
 };
 
 WebSocketGateway::WebSocketGateway(
@@ -25,6 +26,8 @@ WebSocketGateway::WebSocketGateway(
     , messageBus_(messageBus)
     , logger_(logger)
     , rateLimiter_(config.rateLimiting.maxTokens, config.rateLimiting.refillRate)
+    , tickRate_(config.server.tickRate)
+    , broadcastRate_(config.server.broadcastRate)
     , onReset_(std::move(onReset))
 {
     setupBroadcastSubscription();
@@ -59,14 +62,15 @@ void WebSocketGateway::run() {
                 ws->subscribe("broadcast");
 
                 // Reset sequence tracking for new client
-                lastSequence_ = 0;
-                lastTimestamp_ = 0;
+                auto* data = ws->getUserData();
+                data->lastSequence = 0;
+                data->lastTimestamp = 0;
 
                 // Send welcome message
                 json welcome = {
                     {"type", "welcome"},
-                    {"tickRate", 60},
-                    {"broadcastRate", 30},
+                    {"tickRate", tickRate_},
+                    {"broadcastRate", broadcastRate_},
                     {"sceneId", "default"},
                     {"protocolVersion", 1},
                     {"serverVersion", "1.0.0"}
@@ -99,7 +103,8 @@ void WebSocketGateway::run() {
                         cmd.sequence = msg.value("sequence", 0u);
                         cmd.timestamp = msg.value("timestamp", 0ull);
 
-                        auto result = CommandValidator::validate(cmd, lastSequence_, lastTimestamp_);
+                        auto* socketData = ws->getUserData();
+                        auto result = CommandValidator::validate(cmd, socketData->lastSequence, socketData->lastTimestamp);
                         if (!result.valid) {
                             json error = {
                                 {"type", "error"},
@@ -111,8 +116,8 @@ void WebSocketGateway::run() {
                             return;
                         }
 
-                        lastSequence_ = cmd.sequence;
-                        lastTimestamp_ = cmd.timestamp;
+                        socketData->lastSequence = cmd.sequence;
+                        socketData->lastTimestamp = cmd.timestamp;
                         commandSource_.enqueue(cmd);
 
                     } else if (type == "ping") {
@@ -131,8 +136,9 @@ void WebSocketGateway::run() {
                         logger_.info("Reset requested by client");
                         if (onReset_) {
                             onReset_();
-                            lastSequence_ = 0;
-                            lastTimestamp_ = 0;
+                            auto* socketData = ws->getUserData();
+                            socketData->lastSequence = 0;
+                            socketData->lastTimestamp = 0;
                             json ack = {
                                 {"type", "event"},
                                 {"event", "reset"},
@@ -171,10 +177,10 @@ void WebSocketGateway::run() {
 
     // Create a timer on the uWS event loop to drain broadcast buffer
     auto* loop = uWS::Loop::get();
-    struct us_timer_t* timer = us_create_timer((struct us_loop_t*)loop, 0, sizeof(void*));
-    *static_cast<WebSocketGateway**>(us_timer_ext(timer)) = this;
+    broadcastTimer_ = us_create_timer((struct us_loop_t*)loop, 0, sizeof(void*));
+    *static_cast<WebSocketGateway**>(us_timer_ext(broadcastTimer_)) = this;
 
-    us_timer_set(timer, [](struct us_timer_t* t) {
+    us_timer_set(broadcastTimer_, [](struct us_timer_t* t) {
         auto* self = *static_cast<WebSocketGateway**>(us_timer_ext(t));
         if (self->hasPendingBroadcast_.exchange(false, std::memory_order_acquire)) {
             std::vector<uint8_t> data;
@@ -193,17 +199,27 @@ void WebSocketGateway::run() {
 
     app.run();
 
-    us_timer_close(timer);
+    us_timer_close(broadcastTimer_);
+    broadcastTimer_ = nullptr;
     app_ = nullptr;
     running_.store(false, std::memory_order_release);
 }
 
 void WebSocketGateway::stop() {
-    if (listenSocket_) {
-        us_listen_socket_close(0, listenSocket_);
-        listenSocket_ = nullptr;
-    }
     running_.store(false, std::memory_order_release);
+
+    // Must defer closing to the uWS event loop thread
+    auto* loop = uWS::Loop::get();
+    loop->defer([this]() {
+        if (broadcastTimer_) {
+            us_timer_close(broadcastTimer_);
+            broadcastTimer_ = nullptr;
+        }
+        if (listenSocket_) {
+            us_listen_socket_close(0, listenSocket_);
+            listenSocket_ = nullptr;
+        }
+    });
 }
 
 } // namespace teleop
