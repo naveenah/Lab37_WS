@@ -1,0 +1,12 @@
+frontend/node_modules/
+frontend/dist/
+backend/build/
+backend/vcpkg_installed/
+logs/
+.git/
+.vscode/
+.idea/
+*.log
+.DS_Store
+frontend/test-results/
+frontend/playwright-report/

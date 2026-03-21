@@ -1,0 +1,35 @@
+# Build outputs
+backend/build/
+backend/src/generated/teleop_generated.h
+frontend/dist/
+frontend/node_modules/
+
+# Generated files
+frontend/src/generated/teleop_generated.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+
+# Test outputs
+frontend/test-results/
+frontend/playwright-report/
+frontend/tests/e2e/.auth/
+
+# vcpkg
+backend/vcpkg_installed/
