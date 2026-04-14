@@ -528,81 +528,79 @@ UC6 ..> UC9 : <<include>>
 ### 7.2 Component Diagram
 
 ```mermaid
-@startuml
-package "Frontend (Browser)" {
-    [CanvasRenderer] as CR
-    [InputHandler] as IH
-    [HUDOverlay] as HUD
-    [ConnectionManager] as CM
-    [GameStateStore] as GSS
+graph TD
+    subgraph Frontend["Frontend (Browser)"]
+        CR[CanvasRenderer]
+        IH[InputHandler]
+        HUD[HUDOverlay]
+        CM[ConnectionManager]
+        GSS[GameStateStore]
+        CR -->|reads state| GSS
+        IH -->|writes input| GSS
+        HUD -->|reads score| GSS
+        CM -->|writes server state| GSS
+        IH -->|sends commands| CM
+    end
 
-    CR --> GSS : reads state
-    IH --> GSS : writes input
-    HUD --> GSS : reads score
-    CM --> GSS : writes server state
-    IH --> CM : sends commands
-}
+    subgraph Network["Network Layer"]
+        WS[WebSocket Channel]
+        FB[FlatBuffers Codec]
+        JC[JSON Codec]
+    end
 
-package "Network Layer" {
-    [WebSocket Channel] as WS
-    [FlatBuffers Codec] as FB
-    [JSON Codec] as JC
-}
+    subgraph Backend["Backend (C++20 Server)"]
+        subgraph Gateway["Gateway Layer"]
+            GW[WebSocketGateway]
+            CP[CommandParser]
+            SS[StateSerializer]
+        end
 
-package "Backend (C++20 Server)" {
-    package "Gateway Layer" {
-        [WebSocketGateway] as GW
-        [CommandParser] as CP
-        [StateSerializer] as SS
-    }
+        subgraph Simulation["Simulation Engine"]
+            IS[InputSystem]
+            KS[KinematicsSystem]
+            MS[MovementSystem]
+            TS[TransformSystem]
+            CS[CollisionSystem]
+            ScS[ScoringSystem]
+            BS[BroadcastSystem]
+            LS[LoggingSystem]
+        end
 
-    package "Simulation Engine" {
-        [InputSystem] as IS
-        [KinematicsSystem] as KS
-        [MovementSystem] as MS
-        [TransformSystem] as TS
-        [CollisionSystem] as CS
-        [ScoringSystem] as ScS
-        [BroadcastSystem] as BS
-        [LoggingSystem] as LS
-    }
+        subgraph Core["Core Infrastructure"]
+            REG[EnTT Registry]
+            BUS[InProcessBus]
+            LOG[SpdlogLogger]
+            CFG[ConfigLoader]
+            SL[SceneLoader]
+        end
 
-    package "Core Infrastructure" {
-        [EnTT Registry] as REG
-        [InProcessBus] as BUS
-        [SpdlogLogger] as LOG
-        [ConfigLoader] as CFG
-        [SceneLoader] as SL
-    }
+        subgraph Physics["Physics Library"]
+            SHG[SpatialHashGrid]
+            SAT[SATDetector]
+            ACK[AckermannModel]
+        end
+    end
 
-    package "Physics Library" {
-        [SpatialHashGrid] as SHG
-        [SATDetector] as SAT
-        [AckermannModel] as ACK
-    }
-}
+    CM -->|send/receive| WS
+    WS -->|frames| GW
+    GW -->|raw bytes| CP
+    CP -->|CommandMessage| IS
+    BS -->|EntityData| SS
+    SS -->|FlatBuffer bytes| GW
+    GW -->|broadcast| WS
 
-CM --> WS : send/receive
-WS --> GW : frames
-GW --> CP : raw bytes
-CP --> IS : CommandMessage
-BS --> SS : EntityData
-SS --> GW : FlatBuffer bytes
-GW --> WS : broadcast
-
-IS --> REG : update RobotTag
-KS --> REG : update Transform
-MS --> REG : update Transform
-TS --> REG : update PolygonShape
-CS --> REG : update CollisionState
-CS --> SHG : broad phase
-CS --> SAT : narrow phase
-KS --> ACK : steering math
-ScS --> REG : update ScoreState
-BS --> REG : read all
-LS --> LOG : write events
-SL --> REG : create entities
-@enduml
+    IS -->|update RobotTag| REG
+    KS -->|update Transform| REG
+    MS -->|update Transform| REG
+    TS -->|update PolygonShape| REG
+    CS -->|update CollisionState| REG
+    CS -->|broad phase| SHG
+    CS -->|narrow phase| SAT
+    KS -->|steering math| ACK
+    ScS -->|update ScoreState| REG
+    BS -->|read all| REG
+    LS -->|write events| LOG
+    SL -->|create entities| REG
 ```
 
 ### 7.3 Backend Class Diagram
