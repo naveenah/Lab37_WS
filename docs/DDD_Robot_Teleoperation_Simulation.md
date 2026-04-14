@@ -1321,34 +1321,35 @@ graph TB
 classDiagram
     direction LR
 
-    class `robot:Entity#0` {
-        Transform: {x:5.0, y:3.0, heading:0.785}
-        PolygonShape: {vertices:[4 points], aabb:{...}}
-        Velocity: {speed:2.5, angularVelocity:0.1}
-        RobotTag: {steering:0.3, wheelbase:2.0}
-        CollisionState: {isColliding:false}
-        RenderMeta: {color:0x00FF00FF, layer:2}
+    class RobotEntity0["robot : Entity#0"] {
+        Transform : x 5.0, y 3.0, heading 0.785
+        PolygonShape : vertices [4 points], aabb ...
+        Velocity : speed 2.5, angularVelocity 0.1
+        RobotTag : steering 0.3, wheelbase 2.0
+        CollisionState : isColliding false
+        RenderMeta : color 0x00FF00FF, layer 2
     }
 
-    class `wall_1:Entity#1` {
-        Transform: {x:10.0, y:0.0, heading:0.0}
-        PolygonShape: {vertices:[4 points], aabb:{...}}
-        StaticTag: {}
-        RenderMeta: {color:0x888888FF, layer:1}
+    class WallEntity1["wall_1 : Entity#1"] {
+        Transform : x 10.0, y 0.0, heading 0.0
+        PolygonShape : vertices [4 points], aabb ...
+        StaticTag : empty
+        RenderMeta : color 0x888888FF, layer 1
     }
 
-    class `patrol_bot:Entity#5` {
-        Transform: {x:8.0, y:6.0, heading:1.57}
-        PolygonShape: {vertices:[3 points], aabb:{...}}
-        Velocity: {speed:1.5, angularVelocity:0.0}
-        WaypointPath: {waypoints:[5 pts], idx:2, speed:1.5}
-        RenderMeta: {color:0xFF4444FF, layer:1}
+    class PatrolBotEntity5["patrol_bot : Entity#5"] {
+        Transform : x 8.0, y 6.0, heading 1.57
+        PolygonShape : vertices [3 points], aabb ...
+        Velocity : speed 1.5, angularVelocity 0.0
+        WaypointPath : waypoints [5 pts], idx 2, speed 1.5
+        RenderMeta : color 0xFF4444FF, layer 1
     }
 
-    class `world:Singleton` {
-        ScoreState: {impactCount:3, sessionStartMs:17...}
-        SessionState: {connected:true, cmdSeq:142, stateSeq:8547}
+    class WorldSingleton["world : Singleton"] {
+        ScoreState : impactCount 3, sessionStartMs 17...
+        SessionState : connected true, cmdSeq 142, stateSeq 8547
     }
+
 ```
 
 ---
