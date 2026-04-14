@@ -468,45 +468,50 @@ int main() {
 ### 7.1 Use Case Diagram
 
 ```mermaid
-@startuml
-left to right direction
+graph LR
+    %% Actors
+    op(["🧑 Operator"])
+    clock(["⏱️ System Clock"])
+    ai(["🤖 Dynamic Obstacle AI"])
 
-actor "Operator" as op
-actor "System Clock" as clock
-actor "Dynamic Obstacle\nAI" as ai
+    subgraph RTS["Robot Teleoperation System"]
+        UC1([Connect to Simulator])
+        UC2([Control Robot via Keyboard])
+        UC3([Control Robot via Gamepad])
+        UC4([View Simulation Scene])
+        UC5([Monitor Impact Counter])
+        UC6([Run Physics Simulation])
+        UC7([Detect Collisions])
+        UC8([Move Dynamic Obstacles])
+        UC9([Broadcast World State])
+        UC10([Log Events])
+        UC11([Disconnect / Reconnect])
+    end
 
-rectangle "Robot Teleoperation System" {
-    usecase "Connect to Simulator" as UC1
-    usecase "Control Robot via Keyboard" as UC2
-    usecase "Control Robot via Gamepad" as UC3
-    usecase "View Simulation Scene" as UC4
-    usecase "Monitor Impact Counter" as UC5
-    usecase "Run Physics Simulation" as UC6
-    usecase "Detect Collisions" as UC7
-    usecase "Move Dynamic Obstacles" as UC8
-    usecase "Broadcast World State" as UC9
-    usecase "Log Events" as UC10
-    usecase "Disconnect / Reconnect" as UC11
-}
+    %% Operator associations
+    op --> UC1
+    op --> UC2
+    op --> UC3
+    op --> UC4
+    op --> UC5
+    op --> UC11
 
-op --> UC1
-op --> UC2
-op --> UC3
-op --> UC4
-op --> UC5
-op --> UC11
+    %% System Clock associations
+    clock --> UC6
+    clock --> UC9
 
-clock --> UC6
-clock --> UC9
+    %% Dynamic Obstacle AI associations
+    ai --> UC8
 
-ai --> UC8
+    %% Include relationships
+    UC6 -.->|"«include»"| UC7
+    UC7 -.->|"«include»"| UC10
+    UC6 -.->|"«include»"| UC9
 
-UC6 ..> UC7 : <<include>>
-UC7 ..> UC10 : <<include>>
-UC2 ..> UC6 : <<triggers>>
-UC3 ..> UC6 : <<triggers>>
-UC6 ..> UC9 : <<include>>
-@enduml
+    %% Trigger relationships
+    UC2 -.->|"«triggers»"| UC6
+    UC3 -.->|"«triggers»"| UC6
+
 ```
 
 **Use Case Descriptions:**
